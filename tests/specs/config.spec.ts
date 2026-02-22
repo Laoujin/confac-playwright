@@ -8,8 +8,30 @@ import { ConfigPage } from '../../helpers/pages/ConfigPage';
  * - Read: Verify config values are loaded correctly
  * - Update: Modify and save config values
  * - Validation: Ensure changes are detected and persisted
+ *
+ * Note: Config only supports Read and Update - there's a single config document
+ * that cannot be created or deleted, only modified.
  */
 test.describe('Config CRUD', () => {
+  // Helper to restore original config values after tests
+  let originalValues: { name: string; address: string; payDays: string } | null = null;
+
+  test.afterEach(async ({ page }) => {
+    // Restore original values if we captured them
+    if (originalValues) {
+      const configPage = new ConfigPage(page);
+      try {
+        await configPage.goto();
+        await configPage.setCompanyName(originalValues.name);
+        await configPage.setCompanyAddress(originalValues.address);
+        await configPage.setInvoicePayDays(parseInt(originalValues.payDays, 10));
+        await configPage.save();
+      } catch {
+        // Ignore cleanup errors
+      }
+      originalValues = null;
+    }
+  });
 
   test('should display current config values', async ({ page }) => {
     const configPage = new ConfigPage(page);
@@ -25,9 +47,12 @@ test.describe('Config CRUD', () => {
     const configPage = new ConfigPage(page);
     await configPage.goto();
 
-    // Read original value
-    const originalName = await configPage.getCompanyName();
-    expect(originalName).toBe('Test Company');
+    // Capture original values for cleanup
+    originalValues = {
+      name: await configPage.getCompanyName(),
+      address: await configPage.getCompanyAddress(),
+      payDays: await configPage.getInvoicePayDays(),
+    };
 
     // Update the company name
     const newName = 'Updated Company Name';
@@ -43,19 +68,46 @@ test.describe('Config CRUD', () => {
     // Verify the change persisted
     const savedName = await configPage.getCompanyName();
     expect(savedName).toBe(newName);
+  });
 
-    // Restore original value for other tests
-    await configPage.setCompanyName(originalName);
+  test('should update invoice pay days (numeric field)', async ({ page }) => {
+    const configPage = new ConfigPage(page);
+    await configPage.goto();
+
+    // Capture original values for cleanup
+    originalValues = {
+      name: await configPage.getCompanyName(),
+      address: await configPage.getCompanyAddress(),
+      payDays: await configPage.getInvoicePayDays(),
+    };
+
+    // Verify current value (from seed data)
+    const currentPayDays = await configPage.getInvoicePayDays();
+    expect(currentPayDays).toBe('30');
+
+    // Update to a new value
+    const newPayDays = 45;
+    await configPage.setInvoicePayDays(newPayDays);
+
+    // Save changes
     await configPage.save();
+    await configPage.expectSaveSuccess();
+
+    // Reload and verify
+    await configPage.goto();
+    expect(await configPage.getInvoicePayDays()).toBe(newPayDays.toString());
   });
 
   test('should update multiple fields and save', async ({ page }) => {
     const configPage = new ConfigPage(page);
     await configPage.goto();
 
-    // Store original values
-    const originalName = await configPage.getCompanyName();
-    const originalAddress = await configPage.getCompanyAddress();
+    // Capture original values for cleanup
+    originalValues = {
+      name: await configPage.getCompanyName(),
+      address: await configPage.getCompanyAddress(),
+      payDays: await configPage.getInvoicePayDays(),
+    };
 
     // Update multiple fields
     const newName = 'Multi-Update Test Company';
@@ -73,11 +125,6 @@ test.describe('Config CRUD', () => {
 
     expect(await configPage.getCompanyName()).toBe(newName);
     expect(await configPage.getCompanyAddress()).toBe(newAddress);
-
-    // Restore original values
-    await configPage.setCompanyName(originalName);
-    await configPage.setCompanyAddress(originalAddress);
-    await configPage.save();
   });
 
   test('should show changes modal when navigating away with unsaved changes', async ({ page }) => {
