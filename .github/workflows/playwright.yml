@@ -67,7 +67,7 @@ jobs:
 
       - name: Build backend
         working-directory: ./confac/backend
-        run: npm run build
+        run: npx tsc -p . --skipLibCheck
 
       - name: Start backend
         working-directory: ./confac/backend
