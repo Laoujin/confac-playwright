@@ -1,174 +1,256 @@
-Confac-Playwright
-=================
+# Confac Playwright E2E Tests
 
-- [Github: Playwright](https://github.com/microsoft/playwright) ⭐ 73k
-- [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
+End-to-end tests for confac using Playwright. These tests serve as a behavioral contract between the current Node.js system and the future .NET rewrite.
 
+## Quick Start
 
-## Install
-
-Node v22.11.0
-
-```ps1
-git clone --recurse-submodules https://github.com/itenium-be/confac-playwright
-
-cd confac-playwright
+```bash
+# Install dependencies
 npm install
 npx playwright install
+
+# Start infrastructure (MongoDB + mock services)
+npm run infra:up
+
+# In another terminal, start confac backend (with test config)
+cd ../confac/backend
+cp ../../confac-playwright/.env.test .env
+npm install
+npm start
+
+# In another terminal, start confac frontend
+cd ../confac/frontend
+npm install
+npm start
+
+# Seed the database and run tests
+npm run seed
 npm test
 ```
 
-### Start confac
+## Architecture
 
-```ps1
-docker volume create mongodata
-docker run -id -p 27017:27017 -e "MONGO_INITDB_ROOT_USERNAME=admin" -e "MONGO_INITDB_ROOT_PASSWORD=pwd" -v mongodata:/data/db --name confac-mongo mongo:3.6.3
-
-cd confac/backend
-cp .env.sample .env
-cp -r templates-example templates
-npm install
-npm start
-
-cd ../frontend
-npm install
-npm start
+```
+confac-playwright/
+├── docker-compose.test.yml   # Infrastructure only (mongo + mocks)
+├── docker-compose.full.yml   # Full stack for CI/CD
+├── mocks/
+│   ├── peppol/              # Peppol/Billit mock service
+│   └── excel/               # Excel service mock
+├── seed/
+│   ├── baseline-data.json   # Baseline test data
+│   └── seed.ts              # Database seeding script
+├── helpers/
+│   ├── MockClient.ts        # Mock service client (/prime, /calls)
+│   ├── test-fixtures.ts     # Playwright fixtures
+│   └── *.ts                 # Page Object Models
+└── tests/
+    └── *.spec.ts            # Test files
 ```
 
-### Dependencies
+## Running Tests
 
-**Download [nvm for windows](https://github.com/coreybutler/nvm-windows/releases)**
+### Development Mode (Local App)
 
-On Administrative prompt:
+Start infrastructure only, run backend/frontend locally:
 
-```ps1
-nvm install 22.11.0
-nvm use 22.11.0
+```bash
+# Terminal 1: Infrastructure
+npm run infra:up
+
+# Terminal 2: Backend (with .env.test config)
+cd ../confac/backend && npm start
+
+# Terminal 3: Frontend
+cd ../confac/frontend && npm start
+
+# Terminal 4: Tests
+npm run seed
+npm test           # Run all tests
+npm run ui         # Interactive UI mode
+npm run headed     # Run with browser visible
+npm run debug      # Debug mode
 ```
 
-**Install [Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)**
+### CI Mode (Full Docker)
 
-```ps1
-docker pull mongo:3.6.3
+Everything runs in containers:
+
+```bash
+npm run test:ci
 ```
 
-## Playwright
+## Mock Services
 
-### Annotations
+Mock services implement `/prime` and `/calls` endpoints for test control.
 
-```ts
-test.fail()  // Expects a failure
-test.fixme() // Will not run
-test.slow()  // No timeout
-test.only()  // Only run this
+### Priming Responses
 
-test('some test', async ({ page, browserName }) => {
-  test.skip(browserName === 'firefox', 'Still working on it');
+```typescript
+import { peppolMock } from '../helpers/test-fixtures';
+
+// Prime a success response
+await peppolMock.prime({
+  endpoint: '/v1/orders',
+  method: 'POST',
+  status: 200,
+  response: { orderId: '12345', status: 'created' }
 });
 
-test.describe('group', { tag: '@prod' }, () => {});
-// Run: npx playwright test --grep @prod
-// Run: npx playwright test --grep-invert @prod
-```
-
-### Tracing
-
-[Trace Viewer](https://playwright.dev/docs/trace-viewer)
-
-```ps1
-npx playwright test pom --trace on
-npx playwright show-report
-```
-
-On the CI set `trace: 'on-first-retry'` in the config to replay
-locally or on [trace.playwright.dev](https://trace.playwright.dev/)
-what went wrong.
-
-```ps1
-npx playwright show-trace trace.zip
-```
-
-### Screenshots
-
-```ts
-// Create a screenshot
-// https://playwright.dev/docs/screenshots
-await page.screenshot({
-  path: './playwright/downloads/screenshot.png',
-  fullPage: true,
-  maxDiffPixels: 100, // or via defineConfig({expect.toHaveSceenshot.maxDiffPixels: x})
-  stylePath: path.join(__dirname, 'screenshot.css'), // make volatile elements stand out
+// Prime a failure
+await peppolMock.prime({
+  endpoint: '/v1/orders',
+  method: 'POST',
+  status: 500,
+  error: 'Connection timeout'
 });
 
-// Create a screenshot on first render and compare after
-// Uses https://github.com/mapbox/pixelmatch to compare
-// https://playwright.dev/docs/test-snapshots
-await expect(page).toHaveScreenshot();
-
-// Update the "golden" screenshots after changes to the layout
-// npx playwright test --update-snapshots
-```
-
-### Videos
-
-While the trace.zip is probably better to do after-failure
-analysis, you can also [record videos](https://playwright.dev/docs/videos).
-
-```ts
-import { defineConfig } from '@playwright/test';
-
-export default defineConfig({
-  use: {
-    video: 'on-first-retry', // off, on, retain-on-failure
-    size: { width: 640, height: 480 }
-  },
+// Prime with delay (simulate slow response)
+await peppolMock.prime({
+  endpoint: '/v1/orders',
+  method: 'POST',
+  delay: 5000,
+  response: { orderId: '12345' }
 });
 ```
 
+### Verifying Calls
 
+```typescript
+// Get all calls
+const calls = await peppolMock.getCalls();
 
-## Exercises
+// Get calls for specific endpoint
+const orderCalls = await peppolMock.getCallsFor('/v1/orders');
 
-### Consultants
+// Assert endpoint was called
+await peppolMock.assertCalled('/v1/orders', { times: 1, method: 'POST' });
 
-- Create some default consultants
-- Write tests to test `/consultants` filters
+// Assert endpoint was NOT called
+await peppolMock.assertNotCalled('/v1/orders');
 
+// Reset between tests
+await peppolMock.reset();
+```
 
-### INVOICING
+## Database Seeding
 
-- Create invoice:
-  - Set invoice line aantal & eenheidsprijs & btw & check the calculated numbers
-  - Create credit nota & verify that amount is negated + the invoices are linked
-- Emailing:
-  - Set config FROM, SUBJECT, Signature, Body
-  - Mock Email endpoint and verify that these are indeed used
-- Download invoice & verify that email filename is as in config
-- Edit invoice:
-  - Create invoice: verify audit is set
-  - Edit quickly: audit is not updated
-- Add comment: verify that there are three dots
-- Invoices List:
-  - Test different filters
+```bash
+# Seed with baseline data
+npm run seed
 
-### PROJECTS
-- Create project
-  - Switch between Consulants and verify that the switches are set accordingly
-  - Project is bij eindklant --> extra field (switch values?)
-  - Specifieke facturatiedetails instellen --> changed standaard factuurlijnen (keep values?)
+# Or programmatically
+import { seedDatabase } from './seed/seed';
+await seedDatabase();
+```
 
-### CONTRACTS
-- Update statusses of project/client and verify that icon is correct in project list
+Baseline data includes:
+- 2 users (admin, viewer)
+- 2 roles (admin, viewer)
+- 2 consultants
+- 2 clients
+- 1 project
+- Config
 
-### PROJECT_MONTHS
-- Het bestelbon nr wijzigt voor elke factuur
-- Heeft inkomende factuur
-- Timesheets: SDWorx rapport check
-- Proforma factuur
---> Create such a project and then verify the form after "Maand toevoegen"
+## Test Organization
 
-### SECURITY
-- Take away a certain claim: view-email-invoices --> no email icons
-- delete-project
-- validate-projectMonthTimesheet
-- Add load-historical
+```
+tests/
+├── specs/
+│   ├── entities/           # CRUD tests per entity
+│   │   ├── consultant.spec.ts
+│   │   ├── client.spec.ts
+│   │   ├── project.spec.ts
+│   │   └── invoice.spec.ts
+│   ├── flows/              # End-to-end flows
+│   │   └── invoice-flow.spec.ts
+│   ├── claims/             # Permission tests
+│   │   └── claim-enforcement.spec.ts
+│   └── integrations/       # External service tests
+│       ├── peppol.spec.ts
+│       └── excel.spec.ts
+└── pages/                  # Page Object Models
+    ├── consultant.page.ts
+    ├── client.page.ts
+    └── invoice.page.ts
+```
+
+## Writing Tests
+
+### Using Fixtures
+
+```typescript
+import { test, expect, peppolMock } from '../helpers/test-fixtures';
+
+test.describe('Invoice Peppol Integration', () => {
+  test('sends invoice to Peppol', async ({ page, peppolMock, loginAs }) => {
+    // Login as admin
+    await loginAs('admin');
+
+    // Prime Peppol mock
+    await peppolMock.prime({
+      endpoint: '/v1/orders',
+      method: 'POST',
+      response: { orderId: '12345' }
+    });
+
+    // Navigate and perform action
+    await page.goto('/invoices');
+    await page.getByTestId('send-to-peppol').click();
+
+    // Verify the call was made
+    await peppolMock.assertCalled('/v1/orders');
+  });
+});
+```
+
+### Page Object Model
+
+```typescript
+// helpers/InvoicePage.ts
+export class InvoicePage {
+  constructor(private page: Page) {}
+
+  async goto() {
+    await this.page.goto('/invoices');
+  }
+
+  async create(data: InvoiceData) {
+    await this.page.getByTestId('create-invoice').click();
+    await this.page.getByTestId('client').fill(data.client);
+    // ...
+  }
+
+  get invoiceList() {
+    return this.page.getByTestId('invoice-list');
+  }
+}
+```
+
+## Scripts Reference
+
+| Script | Description |
+|--------|-------------|
+| `npm test` | Run all tests |
+| `npm run ui` | Interactive UI mode |
+| `npm run headed` | Run with visible browser |
+| `npm run debug` | Debug mode with inspector |
+| `npm run trace` | Run with trace recording |
+| `npm run report` | Show HTML report |
+| `npm run codegen` | Record new tests |
+| `npm run infra:up` | Start MongoDB + mocks |
+| `npm run infra:down` | Stop infrastructure |
+| `npm run infra:reset` | Reset infrastructure (clear data) |
+| `npm run infra:full:up` | Start full stack (CI mode) |
+| `npm run seed` | Seed database with baseline data |
+| `npm run mocks:reset` | Reset mock services |
+
+## Ports
+
+| Service | Port |
+|---------|------|
+| Frontend | 3000 |
+| Backend | 9000 (local) / 9001 (docker) |
+| MongoDB | 27018 |
+| Mock Excel | 3300 |
+| Mock Peppol | 3002 |

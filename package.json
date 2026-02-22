@@ -2,15 +2,26 @@
   "name": "confac-playwright",
   "version": "1.0.0",
   "description": "Playwright tests for confac",
+  "type": "module",
   "scripts": {
     "test": "npx playwright test",
+    "test:ci": "npm run infra:full:up && npm run seed && npx playwright test && npm run infra:full:down",
     "ui": "npx playwright test --ui",
     "headed": "npx playwright test --headed",
     "failed": "npx playwright test --last-failed",
     "debug": "npx playwright test --debug",
     "report": "npx playwright show-report",
     "codegen": "npx playwright codegen localhost:3000",
-    "trace": "npx playwright test --trace on"
+    "trace": "npx playwright test --trace on",
+    "infra:up": "docker compose -f docker-compose.test.yml up -d --build",
+    "infra:down": "docker compose -f docker-compose.test.yml down",
+    "infra:logs": "docker compose -f docker-compose.test.yml logs -f",
+    "infra:reset": "docker compose -f docker-compose.test.yml down -v && docker compose -f docker-compose.test.yml up -d --build",
+    "infra:full:up": "docker compose -f docker-compose.full.yml up -d --build",
+    "infra:full:down": "docker compose -f docker-compose.full.yml down",
+    "infra:full:logs": "docker compose -f docker-compose.full.yml logs -f",
+    "seed": "npx ts-node --esm seed/seed.ts",
+    "mocks:reset": "curl -X POST http://localhost:3002/reset && curl -X POST http://localhost:3300/reset"
   },
   "repository": {
     "type": "git",
@@ -22,9 +33,10 @@
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
     "@playwright/test": "^1.53.1",
-    "@types/mongodb": "^3.5.8",
     "@types/node": "^24.0.3",
     "dotenv": "^16.5.0",
-    "mongodb": "^3.5.8"
+    "mongodb": "^3.7.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
   }
 }
