@@ -1,5 +1,7 @@
 import { test as base } from '@playwright/test';
-import { MongoClient, Db } from 'mongodb';
+import pkg from 'mongodb';
+const { MongoClient } = pkg;
+type Db = pkg.Db;
 
 type ConfacFixtures = {
   db: Db;
