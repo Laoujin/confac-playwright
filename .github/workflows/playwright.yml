@@ -71,9 +71,9 @@ jobs:
       - name: Build backend
         working-directory: ./confac/backend
         run: |
-          # Remove only babel types which have syntax incompatible with TS 4.3
-          rm -rf node_modules/@types/babel__*
-          # Build with skipLibCheck to avoid library type mismatch errors
+          # Install TypeScript 5.x to handle newer type syntax in dependencies
+          npm install typescript@5 --save-dev
+          # Build with skipLibCheck to avoid library type checking issues
           npx tsc -p . --skipLibCheck
 
       - name: Start backend
