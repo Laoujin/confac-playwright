@@ -7,6 +7,10 @@ import { Page, Locator, expect } from '@playwright/test';
 export class ConfigPage {
   readonly page: Page;
 
+  // Login elements (for anonymous login)
+  readonly loginNameInput: Locator;
+  readonly loginButton: Locator;
+
   // Company section
   readonly companyNameInput: Locator;
   readonly companyAddressInput: Locator;
@@ -38,6 +42,10 @@ export class ConfigPage {
   constructor(page: Page) {
     this.page = page;
 
+    // Login elements
+    this.loginNameInput = page.getByTestId('name');
+    this.loginButton = page.getByRole('button', { name: 'Confac Starten' });
+
     // Company section inputs - using placeholder text as seen in existing tests
     this.companyNameInput = page.getByPlaceholder('Bedrijfsnaam');
     this.companyAddressInput = page.getByPlaceholder('Adres');
@@ -67,8 +75,28 @@ export class ConfigPage {
     this.discardChangesButton = page.getByRole('button', { name: /Ja.*verder/i });
   }
 
+  /**
+   * Login with anonymous user if not already logged in
+   */
+  async ensureLoggedIn(userName: string = 'Test Admin') {
+    // Check if we're on login page by looking for the login button
+    if (await this.loginButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await this.loginNameInput.fill(userName);
+      await this.loginButton.click();
+      // Wait for navigation to complete
+      await this.page.waitForURL(/.*(?<!login)$/);
+    }
+  }
+
   async goto() {
     await this.page.goto('/config');
+
+    // Handle login if redirected to login page
+    if (await this.loginButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await this.ensureLoggedIn();
+      await this.page.goto('/config');
+    }
+
     await expect(this.page).toHaveTitle(/Configuratie/);
   }
 

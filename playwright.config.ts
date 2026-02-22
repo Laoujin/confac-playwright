@@ -13,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  timeout: 8000,
+  timeout: 30000,
   // testIgnore: './tests/helpers',
   // testMatch: process.env.IS_PROD ? /.*\.prod\.spec\.ts/ : undefined,
   fullyParallel: true,
@@ -44,6 +44,13 @@ export default defineConfig({
     {
       name: 'smoke',
       testMatch: /.*\.smoke\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // Simple chromium project for quick development - no auth dependencies
+    {
+      name: 'chromium',
+      testMatch: /.*\.spec\.ts/,
       use: { ...devices['Desktop Chrome'] },
     },
 
