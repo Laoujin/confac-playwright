@@ -65,10 +65,14 @@ jobs:
           cp ../../.env.test .env
           cp -r templates-example templates || true
 
+      - name: Build backend
+        working-directory: ./confac/backend
+        run: npm run build
+
       - name: Start backend
         working-directory: ./confac/backend
         run: |
-          npm start > backend.log 2>&1 &
+          npm run start:build > backend.log 2>&1 &
           echo $! > backend.pid
           echo "Backend PID: $(cat backend.pid)"
         env:
