@@ -79,24 +79,33 @@ export class ConfigPage {
    * Login with anonymous user if not already logged in
    */
   async ensureLoggedIn(userName: string = 'Test Admin') {
-    // Check if we're on login page by looking for the login button
-    if (await this.loginButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+    // Navigate to home first to see login page
+    await this.page.goto('/');
+
+    // Check if we're on login page by looking for the login button or input
+    const loginVisible = await this.loginButton.isVisible({ timeout: 2000 }).catch(() => false);
+    const inputVisible = await this.loginNameInput.isVisible({ timeout: 500 }).catch(() => false);
+
+    if (loginVisible || inputVisible) {
       await this.loginNameInput.fill(userName);
       await this.loginButton.click();
-      // Wait for navigation to complete
-      await this.page.waitForURL(/.*(?<!login)$/);
+      // Wait for navigation to complete - wait for the navbar to appear
+      await this.page.waitForSelector('#basic-navbar-nav', { timeout: 10000 });
     }
   }
 
   async goto() {
-    await this.page.goto('/config');
+    // First ensure we're logged in
+    await this.page.goto('/');
 
-    // Handle login if redirected to login page
-    if (await this.loginButton.isVisible({ timeout: 1000 }).catch(() => false)) {
+    // Check if login is required
+    const loginVisible = await this.loginButton.isVisible({ timeout: 2000 }).catch(() => false);
+    if (loginVisible) {
       await this.ensureLoggedIn();
-      await this.page.goto('/config');
     }
 
+    // Now navigate to config
+    await this.page.goto('/config');
     await expect(this.page).toHaveTitle(/Configuratie/);
   }
 
