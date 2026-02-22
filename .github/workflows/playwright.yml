@@ -68,13 +68,10 @@ jobs:
       - name: Build backend
         working-directory: ./confac/backend
         run: |
-          # Remove problematic type definitions that don't work with older TS
-          rm -rf node_modules/@types/babel__traverse
-          # Create stub for bson types (referenced by @types/mongodb)
-          mkdir -p types/bson
-          echo 'declare module "bson";' > types/bson/index.d.ts
-          # Build
-          npm run build
+          # Remove problematic type definitions that have TS version issues
+          rm -rf node_modules/@types/babel__*
+          # Build with skipLibCheck to avoid library type issues
+          npx tsc -p . --skipLibCheck
 
       - name: Start backend
         working-directory: ./confac/backend
