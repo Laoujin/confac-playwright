@@ -46,7 +46,10 @@ jobs:
 
       - name: Install confac backend dependencies
         working-directory: ./confac/backend
-        run: npm ci
+        run: |
+          # Use npm install instead of npm ci to ensure all transitive deps are resolved
+          rm -f package-lock.json
+          npm install
 
       - name: Install confac frontend dependencies
         working-directory: ./confac/frontend
