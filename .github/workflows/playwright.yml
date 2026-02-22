@@ -68,12 +68,12 @@ jobs:
       - name: Build backend
         working-directory: ./confac/backend
         run: |
-          # Ensure @types/bson is installed (transitive dep that sometimes gets hoisted away)
-          npm install @types/bson@4 --no-save
-          # Remove problematic type definitions that have TS version issues
+          # Remove problematic type definitions entirely
           rm -rf node_modules/@types/babel__*
-          # Build with skipLibCheck
-          npm run build
+          rm -rf node_modules/@types/bson
+          rm -rf node_modules/@types/mongodb
+          # Build - the actual code doesn't need these types, they're just dev dependencies
+          npx tsc -p . --skipLibCheck
 
       - name: Start backend
         working-directory: ./confac/backend
