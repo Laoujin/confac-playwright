@@ -1,0 +1,51 @@
+version: '3.8'
+
+# Infrastructure-only compose for running tests with local backend/frontend
+# For full containerized setup, use docker-compose.full.yml
+
+services:
+  mongo:
+    image: mongo:3.6.3
+    container_name: confac-test-mongo
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pwd
+      MONGO_INITDB_DATABASE: confac-test
+    volumes:
+      - mongo-test-data:/data/db
+    networks:
+      - confac-test-net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/confac-test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mock-peppol:
+    build:
+      context: ./mocks/peppol
+      dockerfile: Dockerfile
+    container_name: confac-test-mock-peppol
+    ports:
+      - "3002:3002"
+    networks:
+      - confac-test-net
+
+  mock-excel:
+    build:
+      context: ./mocks/excel
+      dockerfile: Dockerfile
+    container_name: confac-test-mock-excel
+    ports:
+      - "3300:3001"
+    networks:
+      - confac-test-net
+
+volumes:
+  mongo-test-data:
+
+networks:
+  confac-test-net:
+    driver: bridge

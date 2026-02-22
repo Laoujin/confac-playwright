@@ -1,0 +1,12 @@
+{
+  "name": "confac-mock-excel",
+  "version": "1.0.0",
+  "description": "Mock server for Excel service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "roles": [
+    {
+      "_id": "000000000000000000000001",
+      "name": "admin",
+      "claims": [
+        "view-config", "manage-config",
+        "view-users", "manage-users",
+        "view-roles", "manage-roles",
+        "view-consultants", "manage-consultants",
+        "view-clients", "manage-clients",
+        "view-projects", "manage-projects",
+        "view-invoices", "manage-invoices",
+        "edit-invoices", "delete-invoices",
+        "email-invoices", "view-email-invoices",
+        "validate-projectMonthTimesheet",
+        "delete-project"
+      ],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    },
+    {
+      "_id": "000000000000000000000002",
+      "name": "viewer",
+      "claims": [
+        "view-consultants", "view-clients", "view-projects", "view-invoices"
+      ],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    }
+  ],
+  "users": [
+    {
+      "_id": "000000000000000000000010",
+      "email": "admin@confac.test",
+      "name": "Admin",
+      "firstName": "Test",
+      "alias": "admin",
+      "active": true,
+      "roles": ["admin"],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    },
+    {
+      "_id": "000000000000000000000011",
+      "email": "viewer@confac.test",
+      "name": "Viewer",
+      "firstName": "Test",
+      "alias": "viewer",
+      "active": true,
+      "roles": ["viewer"],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    }
+  ],
+  "consultants": [
+    {
+      "_id": "000000000000000000000100",
+      "name": "Doe",
+      "firstName": "John",
+      "slug": "john-doe",
+      "type": "consultant",
+      "email": "john.doe@example.com",
+      "telephone": "0471 123 456",
+      "active": true,
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "admin" }
+    },
+    {
+      "_id": "000000000000000000000101",
+      "name": "Smith",
+      "firstName": "Jane",
+      "slug": "jane-smith",
+      "type": "freelancer",
+      "email": "jane.smith@example.com",
+      "telephone": "0472 234 567",
+      "active": true,
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "admin" }
+    }
+  ],
+  "clients": [
+    {
+      "_id": "000000000000000000000200",
+      "slug": "acme-corp",
+      "active": true,
+      "name": "ACME Corporation",
+      "street": "Business Street",
+      "streetNr": "123",
+      "postalCode": "1000",
+      "city": "Brussels",
+      "country": "Belgium",
+      "language": "en",
+      "telephone": "02 123 45 67",
+      "btw": "BE 0123.456.789",
+      "invoiceFileName": "{{formatDate date \"YYYY-MM\"}} {{zero nr 4}} - {{clientName}}",
+      "hoursInDay": 8,
+      "defaultInvoiceLines": [
+        { "desc": "Consultancy services", "price": 750, "amount": 0, "tax": 21, "type": "daily", "sort": 0 }
+      ],
+      "attachments": [],
+      "notes": "",
+      "contact": "John Contact",
+      "contactEmail": "contact@acme.test",
+      "defaultInvoiceDateStrategy": "prev-month-last-day",
+      "defaultChangingOrderNr": false,
+      "email": {
+        "to": "invoices@acme.test",
+        "subject": "Invoice {{nr}}",
+        "body": "Please find attached our invoice.",
+        "attachments": ["pdf"],
+        "combineAttachments": false
+      },
+      "frameworkAgreement": { "status": "BothSigned", "notes": "" },
+      "peppolEnabled": true,
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "admin" }
+    },
+    {
+      "_id": "000000000000000000000201",
+      "slug": "tech-solutions",
+      "active": true,
+      "name": "Tech Solutions NV",
+      "street": "Tech Avenue",
+      "streetNr": "456",
+      "postalCode": "2000",
+      "city": "Antwerp",
+      "country": "Belgium",
+      "language": "nl",
+      "telephone": "03 987 65 43",
+      "btw": "BE 0987.654.321",
+      "invoiceFileName": "{{formatDate date \"YYYY-MM\"}} {{zero nr 4}} - {{clientName}}",
+      "hoursInDay": 8,
+      "defaultInvoiceLines": [
+        { "desc": "Consultancy diensten", "price": 650, "amount": 0, "tax": 21, "type": "daily", "sort": 0 }
+      ],
+      "attachments": [],
+      "notes": "",
+      "contact": "Jan Klant",
+      "contactEmail": "jan@techsolutions.test",
+      "defaultInvoiceDateStrategy": "prev-month-last-day",
+      "defaultChangingOrderNr": false,
+      "email": {
+        "to": "facturen@techsolutions.test",
+        "subject": "Factuur {{nr}}",
+        "body": "In bijlage vindt u onze factuur.",
+        "attachments": ["pdf"],
+        "combineAttachments": false
+      },
+      "frameworkAgreement": { "status": "NoContract", "notes": "" },
+      "peppolEnabled": false,
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "admin" }
+    }
+  ],
+  "projects": [
+    {
+      "_id": "000000000000000000000300",
+      "consultantId": "000000000000000000000100",
+      "startDate": "2024-01-01T00:00:00.000Z",
+      "endDate": null,
+      "client": {
+        "clientId": "000000000000000000000200",
+        "defaultInvoiceLines": [
+          { "desc": "Consultancy services", "price": 750, "amount": 0, "tax": 21, "type": "daily", "sort": 0 }
+        ],
+        "advancedInvoicing": false,
+        "ref": "ACME-2024-001"
+      },
+      "partner": null,
+      "projectMonthConfig": {
+        "changingOrderNr": false,
+        "timesheetCheck": true,
+        "inboundInvoice": false
+      },
+      "contract": { "status": "BothSigned", "notes": "" },
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "admin" }
+    }
+  ],
+  "config": {
+    "_id": "000000000000000000000900",
+    "key": "conf",
+    "company": {
+      "name": "Test Company",
+      "address": "Test Street 1",
+      "city": "1000 Brussels",
+      "btw": "BE 0111.222.333",
+      "rpr": "Brussels",
+      "bank": "Test Bank",
+      "iban": "BE00 1234 5678 9012",
+      "bic": "TESTBEBB",
+      "telephone": "02 111 22 33",
+      "email": "info@testcompany.test",
+      "website": "https://testcompany.test",
+      "template": "example-1.pug",
+      "templateQuotation": "example-1.pug"
+    },
+    "defaultClient": null,
+    "invoiceFileName": "{{formatDate date \"YYYY-MM\"}} {{zero nr 4}} - {{clientName}}",
+    "defaultInvoiceLines": [
+      { "desc": "Consultancy services", "price": 700, "amount": 0, "tax": 21, "type": "daily", "sort": 0 }
+    ],
+    "attachmentTypes": ["pdf", "timesheet"],
+    "defaultInvoiceDateStrategy": "prev-month-last-day",
+    "invoicePayDays": 30,
+    "email": {
+      "cc": "",
+      "bcc": "",
+      "subject": "Invoice {{nr}}",
+      "body": "Dear customer,\n\nPlease find attached our invoice.\n\nKind regards",
+      "attachments": ["pdf"]
+    },
+    "emailSignature": "Test Company Team",
+    "initialMonthLoad": 12,
+    "language": "en",
+    "attachments": [],
+    "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+  }
+}

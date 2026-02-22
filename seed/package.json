@@ -1,0 +1,17 @@
+{
+  "name": "confac-test-seed",
+  "version": "1.0.0",
+  "description": "Database seeding for Playwright tests",
+  "main": "seed.ts",
+  "scripts": {
+    "seed": "npx ts-node seed.ts"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  }
+}
