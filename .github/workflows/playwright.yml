@@ -70,8 +70,8 @@ jobs:
         run: |
           # Remove problematic type definitions that have TS version issues
           rm -rf node_modules/@types/babel__*
-          # Build with skipLibCheck to avoid library type issues
-          npx tsc -p . --skipLibCheck
+          # Remove custom typeRoots and build with default resolution + skipLibCheck
+          npx tsc --outDir ./public --rootDir ./src --skipLibCheck --esModuleInterop --resolveJsonModule --strict
 
       - name: Start backend
         working-directory: ./confac/backend
