@@ -68,9 +68,9 @@ jobs:
       - name: Build backend
         working-directory: ./confac/backend
         run: |
-          # Use newer TypeScript to handle newer type syntax in dependencies
-          npm install -D typescript@5 --no-save
-          npx tsc -p . --skipLibCheck
+          # Remove problematic type definitions that don't work with older TS
+          rm -rf node_modules/@types/babel__traverse
+          npm run build
 
       - name: Start backend
         working-directory: ./confac/backend
