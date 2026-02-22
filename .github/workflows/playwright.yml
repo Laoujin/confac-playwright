@@ -70,7 +70,8 @@ jobs:
         run: |
           # Remove problematic type definitions that don't work with older TS
           rm -rf node_modules/@types/babel__traverse
-          npm run build
+          # Build with skipLibCheck to avoid type resolution issues
+          npx tsc -p . --skipLibCheck --typeRoots ./types
 
       - name: Start backend
         working-directory: ./confac/backend
