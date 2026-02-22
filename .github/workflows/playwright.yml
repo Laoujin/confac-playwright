@@ -67,7 +67,10 @@ jobs:
 
       - name: Build backend
         working-directory: ./confac/backend
-        run: npx tsc -p . --skipLibCheck
+        run: |
+          # Use newer TypeScript to handle newer type syntax in dependencies
+          npm install -D typescript@5 --no-save
+          npx tsc -p . --skipLibCheck
 
       - name: Start backend
         working-directory: ./confac/backend
