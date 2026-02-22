@@ -1,6 +1,5 @@
 ~$*.pptx
 node_modules
-package-lock.json
 SOLUTIONS.md
 
 # Playwright
