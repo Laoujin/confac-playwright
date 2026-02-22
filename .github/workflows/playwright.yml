@@ -68,11 +68,9 @@ jobs:
       - name: Build backend
         working-directory: ./confac/backend
         run: |
-          # Remove problematic type definitions entirely
+          # Remove only babel types which have syntax incompatible with TS 4.3
           rm -rf node_modules/@types/babel__*
-          rm -rf node_modules/@types/bson
-          rm -rf node_modules/@types/mongodb
-          # Build - the actual code doesn't need these types, they're just dev dependencies
+          # Build with skipLibCheck to avoid library type mismatch errors
           npx tsc -p . --skipLibCheck
 
       - name: Start backend
