@@ -70,7 +70,10 @@ jobs:
         run: |
           # Remove problematic type definitions that don't work with older TS
           rm -rf node_modules/@types/babel__traverse
-          # Build (original npm run build should work now)
+          # Create stub for bson types (referenced by @types/mongodb)
+          mkdir -p types/bson
+          echo 'declare module "bson";' > types/bson/index.d.ts
+          # Build
           npm run build
 
       - name: Start backend
