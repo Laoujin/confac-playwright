@@ -7,7 +7,7 @@ setup('create new database', async ({ db }) => {
 
   // Dropping db as part of the setup (and not teardown)
   // (so we can inspect the database after running test)
-  console.log('dropping confac-playwright');
+  console.log('dropping confac-test');
   await db.dropDatabase();
 
   // Insert some default stuff
