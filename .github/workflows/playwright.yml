@@ -122,7 +122,7 @@ jobs:
         run: bun run seed
 
       - name: Run Playwright tests
-        run: bunx playwright test --project=chromium --reporter=html
+        run: bunx playwright test --project=chromium --reporter=list,html
         env:
           CI: true
 
