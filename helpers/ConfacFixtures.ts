@@ -10,7 +10,13 @@ type ConfacFixtures = {
 
 export const test = base.extend<ConfacFixtures>({
   db: async ({ page }, use) => {
-    const client = new MongoClient('mongodb://admin:pwd@localhost:27018/confac-test', {authSource: 'admin', useUnifiedTopology: true});
+    const client = new MongoClient('mongodb://admin:pwd@localhost:27018/confac-test', {
+      authSource: 'admin',
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    });
     await client.connect();
     const db = client.db('confac-test');
 
