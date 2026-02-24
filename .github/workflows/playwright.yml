@@ -33,27 +33,26 @@ jobs:
           path: confac
           ref: master
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '22'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install Playwright dependencies
         run: |
-          npm ci
-          npx playwright install --with-deps chromium
+          bun install
+          bunx playwright install --with-deps chromium
 
       - name: Install confac backend dependencies
         working-directory: ./confac/backend
         run: |
-          # Use npm install instead of npm ci to ensure all transitive deps are resolved
+          # Use bun install to ensure all transitive deps are resolved
           rm -f package-lock.json
-          npm install
+          bun install
 
       - name: Install confac frontend dependencies
         working-directory: ./confac/frontend
-        run: npm ci
+        run: bun install
 
       - name: Start infrastructure (MongoDB + mocks)
         run: |
@@ -72,14 +71,14 @@ jobs:
         working-directory: ./confac/backend
         run: |
           # Install TypeScript 5.x to handle newer type syntax in dependencies
-          npm install typescript@5 --save-dev
+          bun add -d typescript@5
           # Build with skipLibCheck to avoid library type checking issues
-          npx tsc -p . --skipLibCheck
+          bunx tsc -p . --skipLibCheck
 
       - name: Start backend
         working-directory: ./confac/backend
         run: |
-          npm run start:build > backend.log 2>&1 &
+          bun run start:build > backend.log 2>&1 &
           echo $! > backend.pid
           echo "Backend PID: $(cat backend.pid)"
         env:
@@ -88,7 +87,7 @@ jobs:
       - name: Start frontend
         working-directory: ./confac/frontend
         run: |
-          npm start > frontend.log 2>&1 &
+          bun start > frontend.log 2>&1 &
           echo $! > frontend.pid
           echo "Frontend PID: $(cat frontend.pid)"
         env:
@@ -120,10 +119,10 @@ jobs:
           echo "Frontend is ready!"
 
       - name: Seed database
-        run: npm run seed
+        run: bun run seed
 
       - name: Run Playwright tests
-        run: npx playwright test --project=chromium --reporter=html
+        run: bunx playwright test --project=chromium --reporter=html
         env:
           CI: true
 

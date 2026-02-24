@@ -6,26 +6,26 @@ End-to-end tests for confac using Playwright. These tests serve as a behavioral 
 
 ```bash
 # Install dependencies
-npm install
-npx playwright install
+bun install
+bunx playwright install
 
 # Start infrastructure (MongoDB + mock services)
-npm run infra:up
+bun run infra:up
 
 # In another terminal, start confac backend (with test config)
 cd ../confac/backend
 cp ../../confac-playwright/.env.test .env
-npm install
-npm start
+bun install
+bun start
 
 # In another terminal, start confac frontend
 cd ../confac/frontend
-npm install
-npm start
+bun install
+bun start
 
 # Seed the database and run tests
-npm run seed
-npm test
+bun run seed
+bun test
 ```
 
 ## Architecture
@@ -70,20 +70,20 @@ Start infrastructure only, run backend/frontend locally:
 
 ```bash
 # Terminal 1: Infrastructure
-npm run infra:up
+bun run infra:up
 
 # Terminal 2: Backend (with .env.test config)
-cd ../confac/backend && npm start
+cd ../confac/backend && bun start
 
 # Terminal 3: Frontend
-cd ../confac/frontend && npm start
+cd ../confac/frontend && bun start
 
 # Terminal 4: Tests
-npm run seed
-npm test           # Run all tests
-npm run ui         # Interactive UI mode
-npm run headed     # Run with browser visible
-npm run debug      # Debug mode
+bun run seed
+bun test           # Run all tests
+bun run ui         # Interactive UI mode
+bun run headed     # Run with browser visible
+bun run debug      # Debug mode
 ```
 
 ### CI Mode (Full Docker)
@@ -91,7 +91,7 @@ npm run debug      # Debug mode
 Everything runs in containers:
 
 ```bash
-npm run test:ci
+bun run test:ci
 ```
 
 ## Mock Services
@@ -151,7 +151,7 @@ await peppolMock.reset();
 
 ```bash
 # Seed with baseline data
-npm run seed
+bun run seed
 
 # Or programmatically
 import { seedDatabase } from './seed/seed';
@@ -272,24 +272,24 @@ const invoice = generateInvoice('clientId', {
 
 | Script | Description |
 |--------|-------------|
-| `npm test` | Run all tests |
-| `npm run test:e2e` | Run all E2E spec tests |
-| `npm run test:entities` | Run entity CRUD tests |
-| `npm run test:flows` | Run end-to-end flow tests |
-| `npm run test:integrations` | Run integration tests (Peppol, Excel) |
-| `npm run test:claims` | Run permission/claims tests |
-| `npm run ui` | Interactive UI mode |
-| `npm run headed` | Run with visible browser |
-| `npm run debug` | Debug mode with inspector |
-| `npm run trace` | Run with trace recording |
-| `npm run report` | Show HTML report |
-| `npm run codegen` | Record new tests |
-| `npm run infra:up` | Start MongoDB + mocks |
-| `npm run infra:down` | Stop infrastructure |
-| `npm run infra:reset` | Reset infrastructure (clear data) |
-| `npm run infra:full:up` | Start full stack (CI mode) |
-| `npm run seed` | Seed database with baseline data |
-| `npm run mocks:reset` | Reset mock services |
+| `bun test` | Run all tests |
+| `bun run test:e2e` | Run all E2E spec tests |
+| `bun run test:entities` | Run entity CRUD tests |
+| `bun run test:flows` | Run end-to-end flow tests |
+| `bun run test:integrations` | Run integration tests (Peppol, Excel) |
+| `bun run test:claims` | Run permission/claims tests |
+| `bun run ui` | Interactive UI mode |
+| `bun run headed` | Run with visible browser |
+| `bun run debug` | Debug mode with inspector |
+| `bun run trace` | Run with trace recording |
+| `bun run report` | Show HTML report |
+| `bun run codegen` | Record new tests |
+| `bun run infra:up` | Start MongoDB + mocks |
+| `bun run infra:down` | Stop infrastructure |
+| `bun run infra:reset` | Reset infrastructure (clear data) |
+| `bun run infra:full:up` | Start full stack (CI mode) |
+| `bun run seed` | Seed database with baseline data |
+| `bun run mocks:reset` | Reset mock services |
 
 ## Ports
 

@@ -1,5 +1,5 @@
 # Backend Dockerfile for Playwright tests
-FROM node:16.10.0
+FROM oven/bun:1-debian
 
 # Install dependencies for PDF generation
 RUN apt-get update && \
@@ -9,18 +9,18 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY package*.json ./
-RUN npm ci
+COPY package.json bun.lock* ./
+RUN bun install
 
 # Copy source code
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN bun run build
 
 # Create templates directory
 RUN mkdir -p /app/templates
 
 EXPOSE 9000
 
-CMD ["node", "./public/server.js"]
+CMD ["bun", "run", "./public/server.js"]

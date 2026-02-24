@@ -1,5 +1,5 @@
 # Frontend Dockerfile for Playwright tests
-FROM node:18-alpine AS builder
+FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
@@ -7,15 +7,15 @@ WORKDIR /app
 ARG REACT_APP_API_URL=http://localhost:9001
 
 # Copy package files and install dependencies
-COPY package*.json ./
-RUN npm ci
+COPY package.json bun.lock* ./
+RUN bun install
 
 # Copy source code
 COPY . .
 
 # Build the React app
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
-RUN npm run build
+RUN bun run build
 
 # Production stage with nginx
 FROM nginx:alpine

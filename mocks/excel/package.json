@@ -4,7 +4,7 @@
   "description": "Mock server for Excel service",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "bun run server.js"
   },
   "dependencies": {
     "express": "^4.18.2"
