@@ -6,6 +6,11 @@
   "scripts": {
     "test": "npx playwright test",
     "test:ci": "npm run infra:full:up && npm run seed && npx playwright test && npm run infra:full:down",
+    "test:e2e": "npx playwright test --project=e2e",
+    "test:entities": "npx playwright test --project=entities",
+    "test:flows": "npx playwright test --project=flows",
+    "test:integrations": "npx playwright test --project=integrations",
+    "test:claims": "npx playwright test --project=claims",
     "ui": "npx playwright test --ui",
     "headed": "npx playwright test --headed",
     "failed": "npx playwright test --last-failed",

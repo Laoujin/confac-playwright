@@ -41,11 +41,25 @@ confac-playwright/
 │   ├── baseline-data.json   # Baseline test data
 │   └── seed.ts              # Database seeding script
 ├── helpers/
+│   ├── pages/               # Page Object Models
+│   │   ├── BasePage.ts      # Common page functionality
+│   │   ├── ConsultantPage.ts
+│   │   ├── ClientPage.ts
+│   │   ├── ProjectPage.ts
+│   │   └── InvoicePage.ts
+│   ├── data/                # Test data generators
+│   │   └── test-data-generators.ts
 │   ├── MockClient.ts        # Mock service client (/prime, /calls)
-│   ├── test-fixtures.ts     # Playwright fixtures
-│   └── *.ts                 # Page Object Models
+│   ├── test-fixtures.ts     # Playwright fixtures with page objects
+│   ├── Dropdown.ts          # React-select dropdown helper
+│   └── NotesModal.ts        # Notes/comments modal helper
 └── tests/
-    └── *.spec.ts            # Test files
+    ├── specs/
+    │   ├── entities/        # CRUD tests (~78 tests)
+    │   ├── flows/           # End-to-end flows (~5 tests)
+    │   ├── claims/          # Permission tests (~15 tests)
+    │   └── integrations/    # External service tests (~18 tests)
+    └── *.spec.ts            # Legacy test files
 ```
 
 ## Running Tests
@@ -206,25 +220,52 @@ test.describe('Invoice Peppol Integration', () => {
 
 ### Page Object Model
 
+Page objects are available as fixtures:
+
 ```typescript
-// helpers/InvoicePage.ts
-export class InvoicePage {
-  constructor(private page: Page) {}
+import { test, expect } from '../helpers/test-fixtures';
 
-  async goto() {
-    await this.page.goto('/invoices');
-  }
+test('create a consultant', async ({ consultantPage, loginAs }) => {
+  await loginAs('admin');
 
-  async create(data: InvoiceData) {
-    await this.page.getByTestId('create-invoice').click();
-    await this.page.getByTestId('client').fill(data.client);
-    // ...
-  }
+  await consultantPage.gotoCreate();
+  await consultantPage.fill({
+    firstName: 'John',
+    name: 'Doe',
+    email: 'john.doe@example.com',
+    type: 'consultant',
+  });
+  await consultantPage.save();
+  await consultantPage.expectSaveSuccess();
+});
+```
 
-  get invoiceList() {
-    return this.page.getByTestId('invoice-list');
-  }
-}
+Available page fixtures: `consultantPage`, `clientPage`, `projectPage`, `invoicePage`
+
+### Test Data Generators
+
+Generate realistic test data using Faker.js:
+
+```typescript
+import {
+  generateConsultant,
+  generateClient,
+  generateBtwResponse,
+  generateInvoice,
+  generatePeppolSuccessResponse,
+} from '../helpers/data/test-data-generators';
+
+// Generate random consultant data
+const consultant = generateConsultant({ type: 'freelancer' });
+
+// Generate BTW lookup response
+const btwResponse = generateBtwResponse();
+
+// Generate invoice with custom values
+const invoice = generateInvoice('clientId', {
+  status: 'new',
+  lines: [generateInvoiceLine({ desc: 'Consultancy', price: 750 })],
+});
 ```
 
 ## Scripts Reference
@@ -232,6 +273,11 @@ export class InvoicePage {
 | Script | Description |
 |--------|-------------|
 | `npm test` | Run all tests |
+| `npm run test:e2e` | Run all E2E spec tests |
+| `npm run test:entities` | Run entity CRUD tests |
+| `npm run test:flows` | Run end-to-end flow tests |
+| `npm run test:integrations` | Run integration tests (Peppol, Excel) |
+| `npm run test:claims` | Run permission/claims tests |
 | `npm run ui` | Interactive UI mode |
 | `npm run headed` | Run with visible browser |
 | `npm run debug` | Debug mode with inspector |

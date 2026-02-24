@@ -54,6 +54,46 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
+    // E2E Entity CRUD tests
+    {
+      name: 'entities',
+      testDir: './tests/specs/entities',
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // E2E Flow tests
+    {
+      name: 'flows',
+      testDir: './tests/specs/flows',
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // Integration tests (Peppol, Excel)
+    {
+      name: 'integrations',
+      testDir: './tests/specs/integrations',
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // Permission/Claims tests
+    {
+      name: 'claims',
+      testDir: './tests/specs/claims',
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    // All specs tests combined
+    {
+      name: 'e2e',
+      testDir: './tests/specs',
+      testMatch: /.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
     {
       name: 'setup-auth',
       testMatch: /.*2\.auth\.setup\.ts/
