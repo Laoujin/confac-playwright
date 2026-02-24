@@ -1,11 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/test-fixtures';
 
 // Add multiple lines to an invoice
 // Use drag & drop to change the order of the lines
 // https://playwright.dev/docs/input#drag-and-drop
 
 test.describe('edit invoice', () => {
-  test('re-order invoice lines', async ({ page }) => {
+  test('re-order invoice lines', async ({ page, loginAs }) => {
+    await loginAs('admin');
     await page.goto('/invoices/create');
 
     await page.getByText('Factuurlijn toevoegen').click();
@@ -15,6 +16,6 @@ test.describe('edit invoice', () => {
     for (const [index, desc] of descs.entries())
       await desc.fill('desc ' + index);
 
-    // Swamp em ;)
+    // Swap em ;)
   });
 });

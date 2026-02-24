@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/test-fixtures';
 
 // The socket.io implementation syncs updates between tabs and browsers
 // Write a test that makes a change in one tab/browser and then checks
@@ -7,7 +7,10 @@ import { test, expect } from '@playwright/test';
 
 
 test.describe('socket.io', () => {
-  test('syncs changes between tabs', async ({ context }) => {
+  test('syncs changes between tabs', async ({ context, loginAs, page }) => {
+    // Login first on main page
+    await loginAs('admin');
+
     const tab1 = await context.newPage();
     const tab2 = await context.newPage();
 

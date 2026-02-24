@@ -1,4 +1,4 @@
-import { test, expect } from '../helpers/ConfacFixtures';
+import { test, expect } from '../helpers/test-fixtures';
 
 // Fixtures: https://playwright.dev/docs/test-fixtures
 // Global setup: https://playwright.dev/docs/test-global-setup-teardown
@@ -7,7 +7,8 @@ import { test, expect } from '../helpers/ConfacFixtures';
 // npx playwright test --update-snapshots --update-source-method=3way
 
 test.describe('admin role', () => {
-  test('sees "load more data" button', async ({ page }) => {
+  test('sees "load more data" button', async ({ page, loginAs }) => {
+    await loginAs('admin');
     await page.goto('/');
 
     // Create a snapshot

@@ -1,7 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../helpers/test-fixtures';
 
 test.describe('edit config', () => {
-  test('leaving page should trigger "there are changes" modal', async ({ page }) => {
+  test('leaving page should trigger "there are changes" modal', async ({ page, loginAs }) => {
+    await loginAs('admin');
     await page.goto('/config');
 
     await page.getByPlaceholder('Bedrijfsnaam').fill('itenium');
