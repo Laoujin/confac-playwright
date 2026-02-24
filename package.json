@@ -25,7 +25,7 @@
     "infra:full:up": "docker compose -f docker-compose.full.yml up -d --build",
     "infra:full:down": "docker compose -f docker-compose.full.yml down",
     "infra:full:logs": "docker compose -f docker-compose.full.yml logs -f",
-    "seed": "bunx ts-node --esm seed/seed.ts",
+    "seed": "bun seed/seed.ts",
     "mocks:reset": "curl -X POST http://localhost:3002/reset && curl -X POST http://localhost:3300/reset"
   },
   "repository": {
@@ -41,7 +41,6 @@
     "@types/node": "^24.0.3",
     "dotenv": "^16.5.0",
     "mongodb": "^3.7.4",
-    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   }
 }
