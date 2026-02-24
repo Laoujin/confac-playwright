@@ -7,3 +7,5 @@ SOLUTIONS.md
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+settings.local.json
