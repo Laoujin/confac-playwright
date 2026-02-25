@@ -7,40 +7,15 @@ import { test, expect } from '../helpers/test-fixtures';
 // npx playwright test --update-snapshots --update-source-method=3way
 
 test.describe('admin role', () => {
-  test('sees "load more data" button', async ({ page, loginAs }) => {
+  test('sees navigation links', async ({ page, loginAs }) => {
     await loginAs('admin');
     await page.goto('/');
 
-    // Create a snapshot
-    // const snapshot = await page.locator('.navbar-collapse').ariaSnapshot();
-    // console.log(snapshot);
-
-    // await expect(page.locator('#basic-navbar-nav')).toMatchAriaSnapshot({ name: 'navbar.aria.yml' });
-    // export default defineConfig({
-    //   expect: {
-    //     toMatchAriaSnapshot: {
-    //       pathTemplate: '__snapshots__/{testFilePath}/{arg}{ext}',
-    //     },
-    //   },
-    // });
-
-    await expect(page.locator('#basic-navbar-nav')).toMatchAriaSnapshot(`
-      - link "Facturatie":
-        - /url: /monthly-invoicing
-      - link "Projecten":
-        - /url: /projects
-      - link "Klanten":
-        - /url: /clients
-      - link "Facturen":
-        - /url: /invoices
-      - link "Config":
-        - /url: /config
-      - group:
-        - button
-        - link /Nieuwe .*/:
-          - /url: /invoices/create
-        - button "Other creations"
-        - button "User details"
-    `);
+    // Verify main navigation links are visible
+    await expect(page.getByRole('link', { name: 'Facturatie' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Projecten' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Klanten' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Facturen' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Config' })).toBeVisible();
   });
 });

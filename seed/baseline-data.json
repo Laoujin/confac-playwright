@@ -25,6 +25,17 @@
         "view-consultants", "view-clients", "view-projects", "view-invoices"
       ],
       "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    },
+    {
+      "_id": "000000000000000000000003",
+      "name": "user",
+      "claims": [
+        "view-consultants", "manage-consultants",
+        "view-clients", "manage-clients",
+        "view-projects", "manage-projects",
+        "view-invoices", "manage-invoices", "edit-invoices"
+      ],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
     }
   ],
   "users": [
@@ -46,6 +57,16 @@
       "alias": "viewer",
       "active": true,
       "roles": ["viewer"],
+      "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
+    },
+    {
+      "_id": "000000000000000000000012",
+      "email": "user@confac.test",
+      "name": "User",
+      "firstName": "Test",
+      "alias": "Test User",
+      "active": true,
+      "roles": ["user"],
       "audit": { "createdOn": "2024-01-01T00:00:00.000Z", "createdBy": "system" }
     }
   ],
