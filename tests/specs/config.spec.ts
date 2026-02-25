@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../helpers/test-fixtures';
 import { ConfigPage } from '../../helpers/pages/ConfigPage';
 
 /**
@@ -15,6 +15,10 @@ import { ConfigPage } from '../../helpers/pages/ConfigPage';
 test.describe('Config CRUD', () => {
   // Helper to restore original config values after tests
   let originalValues: { name: string; address: string; payDays: string } | null = null;
+
+  test.beforeEach(async ({ loginAs }) => {
+    await loginAs('admin');
+  });
 
   test.afterEach(async ({ page }) => {
     // Restore original values if we captured them
